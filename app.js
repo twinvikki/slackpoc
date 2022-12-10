@@ -52,7 +52,9 @@ const app = new App({
                   "text": {
                     "type": "plain_text",
                     "text": "Click me!"
-                  }
+                  },
+                  "value": "click_me_123",
+                  "action_id": "button-action"
                 }
               ]
             }
