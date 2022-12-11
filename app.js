@@ -10,17 +10,9 @@ const app = new App({
   });
   
   (async () => {
-    const port = 3000;
-    //const eApp = express();
-    const conn = new jsforce.Connection({
-          // you can change loginUrl to connect to sandbox or prerelease env.
-          loginUrl : 'https://login.salesforce.com'
-        });
-        const userInfo = await conn.login(
-            process.env.SF_USERNAME,
-            process.env.SF_PASSWORD+process.env.SF_TOKEN);
+    const port = 3000;  
           await app.start(process.env.PORT || port);
-          console.log(`⚡️ Slack Bolt app is running on port ${port}! ${userInfo.id}`);
+          console.log(`⚡️ Slack Bolt app is running on port ${port}! `);
   })();
   app.event('app_home_opened', async ({ event, client, context }) => {
     try {
@@ -30,7 +22,7 @@ const app = new App({
       });
       const userInfo = await conn.login(
         process.env.SF_USERNAME,
-        process.env.SF_PASSWORD
+        process.env.SF_PASSWORD+process.env.SF_TOKEN
       );
       await ack;
       /* view.publish is the method that your app uses to push a view to the Home tab */
