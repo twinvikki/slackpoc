@@ -54,7 +54,7 @@ const app = new App({
                     "text": "Click me!"
                   },
                   "value": "click_me_123",
-                  "action_id": "button-action"
+                  "action_id": "actionSubmit"
                 }
               ]
             }
@@ -65,4 +65,11 @@ const app = new App({
     catch (error) {
       console.error(error);
     }
+  });
+
+  app.action("actionSubmit",async ({body,ack,say})=>{
+    await ack;
+    let keyword= body.view.state;
+    alert('keyword-->'+keyword)
+
   });
