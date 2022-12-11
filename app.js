@@ -10,8 +10,16 @@ const app = new App({
   (async () => {
     const port = 3000
     // Start your app
+    const conn = new jsforce.Connection({
+      // you can change loginUrl to connect to sandbox or prerelease env.
+       loginUrl : 'https://login.salesforce.com'
+    });
+    const userInfo = await conn.login(
+      process.env.SF_USERNAME,
+      process.env.SF_PASSWORD
+    );
     await app.start(process.env.PORT || port);
-    console.log(`⚡️ Slack Bolt app is running on port ${port}!`);
+    console.log(`⚡️ Slack Bolt app is running on port ${port}! ${userInfo.id}`);
   })();
   app.event('app_home_opened', async ({ event, client, context }) => {
     try {
