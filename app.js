@@ -1,23 +1,23 @@
 const { App } = require("@slack/bolt");
 const jsforce = require('jsforce');
+const express = require('express');
+require('dotenv').config();
 const app = new App({
     token: process.env.SLACK_BOT_TOKEN,
     signingSecret: process.env.SLACK_SIGNING_SECRET,
-    socketMode:true, // enable the following to use socket mode
+    socketMode:false, // enable the following to use socket mode
     appToken: process.env.APP_TOKEN
   });
   
   (async () => {
-    const port = 3000
-    // Start your app
+    const port = 3000;
+    //const eApp = express();
     const conn = new jsforce.Connection({
-      // you can change loginUrl to connect to sandbox or prerelease env.
-       loginUrl : 'https://login.salesforce.com'
-    });
-    const userInfo = await conn.login(
-      process.env.SF_USERNAME,
-      process.env.SF_PASSWORD
-    );
+          // you can change loginUrl to connect to sandbox or prerelease env.
+          loginUrl : 'https://login.salesforce.com'
+        });
+        const userInfo = await conn.login(
+            process.env.SF_USERNAME,
     await app.start(process.env.PORT || port);
     console.log(`⚡️ Slack Bolt app is running on port ${port}! ${userInfo.id}`);
   })();
