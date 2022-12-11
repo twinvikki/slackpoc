@@ -41,7 +41,8 @@ const app = new App({
               "type": "section",
               "text": {
                 "type": "mrkdwn",
-                "text": "*Welcome to your _App's Home_* :tada: ${userInfo.id}"
+                "text": `*Welcome to your _App's Home_* :tada:"+'${userInfo.id}`
+
               }
             },
             {
