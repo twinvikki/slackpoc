@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "exit" : "process.exit()"
+    "exit": "process.exit()"
   },
   "repository": {
     "type": "git",
@@ -22,6 +22,7 @@
     "@slack/bolt": "^3.12.2",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "jsforce": "^1.11.0"
+    "jsforce": "^1.11.0",
+    "slack-block-builder": "^2.7.2"
   }
 }
