@@ -1,11 +1,12 @@
 const { App } = require("@slack/bolt");
-
+const jsforce = require('jsforce');
 const app = new App({
     token: process.env.SLACK_BOT_TOKEN,
     signingSecret: process.env.SLACK_SIGNING_SECRET,
     socketMode:true, // enable the following to use socket mode
     appToken: process.env.APP_TOKEN
   });
+  
   (async () => {
     const port = 3000
     // Start your app
@@ -14,6 +15,15 @@ const app = new App({
   })();
   app.event('app_home_opened', async ({ event, client, context }) => {
     try {
+      const conn = new jsforce.Connection({
+        // you can change loginUrl to connect to sandbox or prerelease env.
+         loginUrl : 'https://login.salesforce.com'
+      });
+      const userInfo = await conn.login(
+        process.env.SF_USERNAME,
+        process.env.SF_PASSWORD
+      );
+      await ack;
       /* view.publish is the method that your app uses to push a view to the Home tab */
       const result = await client.views.publish({
   
@@ -31,7 +41,7 @@ const app = new App({
               "type": "section",
               "text": {
                 "type": "mrkdwn",
-                "text": "*Welcome to your _App's Home_* :tada:"
+                "text": "*Welcome to your _App's Home_* :tada: ${userInfo.id}"
               }
             },
             {

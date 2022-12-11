@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/twinvikki/slackpoc#readme",
   "dependencies": {
-    "@slack/bolt": "^3.12.2"
+    "@slack/bolt": "^3.12.2",
+    "jsforce": "^1.11.0"
   }
 }
