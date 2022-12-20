@@ -4,7 +4,8 @@ const jsforce = require('jsforce');
 const express = require('express');
 require('dotenv').config();
 const appHome = require('./homeapp');
-
+const e = require("express");
+var selectedValue = 'Account';
   const app = new App({
       token: process.env.SLACK_BOT_TOKEN,
       signingSecret: process.env.SLACK_SIGNING_SECRET,
@@ -39,8 +40,8 @@ const appHome = require('./homeapp');
             }
             else
             {
-              const homeView =  appHome.createHome(res);
-              console.log('JSON.str-->'+JSON.stringify(homeView));
+              const homeView =  appHome.createHome(res,selectedValue);
+           //   console.log('JSON.str-->'+JSON.stringify(homeView));
               try {
                 const result =   app.client.views.publish({
                   token: context.botToken,
@@ -79,7 +80,7 @@ app.action("button-action",async ({body,ack,client,context})=>{
     let testData = body.view.state.values;
     var keys = Object.keys(testData);
     let testD = keys[0];
-    console.log(keys[0]);
+  //  console.log(keys[0]);
     let finData = testData[testD];
     let accName;
     for (const property in finData) {
@@ -104,7 +105,7 @@ app.action("button-action",async ({body,ack,client,context})=>{
           if (err) { return console.error(err); }
           else
           {
-            const homeView =  appHome.createHome(res);
+            const homeView =  appHome.createHome(res,selectedValue);
             try {
               const result = app.client.apiCall('views.publish', {
                 token: context.botToken,
@@ -117,11 +118,11 @@ app.action("button-action",async ({body,ack,client,context})=>{
               app.error(e);
             }
           }
-          console.log("response: ", JSON.stringify(res));          
+        //  console.log("response: ", JSON.stringify(res));          
         });
       }
     });
-    console.log('accName-->'+accName);
+  //  console.log('accName-->'+accName);
   });
   app.view({ callback_id: 'modal-callback-id', type: 'view_closed' }, async ({ ack, body, view, client }) => {
     // Acknowledge the view_closed request
@@ -129,4 +130,145 @@ app.action("button-action",async ({body,ack,client,context})=>{
     // react on close request
   });
 
+
+  app.action("static_select-action",async ({body,ack,client,context,payload})=>{
+    await ack();
+    selectedValue = payload.selected_option.value;
+   // console.log('payload-->'+payload.selected_option.value);
+    const conn = new jsforce.Connection({
+      loginUrl : 'https://login.salesforce.com'
+    });
+    await conn.login(
+      process.env.SF_USERNAME,
+      process.env.SF_PASSWORD+process.env.SF_TOKEN
+    ,(err)=>{
+      if(err)
+      {
+        console.error(err);
+      }
+      else
+      {
+        let callingParam;
+        if(selectedValue == 'Contact')
+        {
+          conn.apex.get("/fetchContact/", function(err, res) {
+            if (err) 
+            { 
+              return console.error(err); 
+            }
+            else
+            {
+              const homeView =  appHome.createHome(res,selectedValue);
+              try {
+                app.client.apiCall('views.publish',{
+                  token: context.botToken,
+                  user_id: body.user.id ,
+                  view: homeView
+                });
+              } catch(e) {
+                console.log('erron on contact-->'+JSON.stringify(e));
+                console.error('erro on contact-->'+e);
+              }
+            }
+          });
+        }
+        else if(selectedValue == 'Account')
+        {
+          conn.apex.get("/UpdateAccount/", function(err, res) {
+            if (err) 
+            { 
+              return console.error(err); 
+            }
+            else
+            {
+              const homeView =  appHome.createHome(res,selectedValue);
+              try {
+                app.client.apiCall('views.publish',{
+                  token: context.botToken,
+                  user_id: body.user.id ,
+                  view: homeView
+                });
+              } catch(e) {
+                console.log('erron on contact-->'+JSON.stringify(e));
+                console.error('erro on contact-->'+e);
+              }
+            }
+          });
+        }
+        else
+        {
+          conn.apex.get("/fetchApproval/", function(err, res) {
+            if (err) 
+            { 
+              return console.error(err); 
+            }
+            else
+            {
+              //console.log('res-->'+JSON.stringify(res));
+              const homeView =  appHome.createHome(res,selectedValue);
+              try {
+                app.client.apiCall('views.publish',{
+                  token: context.botToken,
+                  user_id: body.user.id ,
+                  view: homeView
+                });
+              } catch(e) {
+                console.log('erron on contact-->'+JSON.stringify(e));
+                console.error('erro on contact-->'+e);
+              }
+            }
+          });
+        }
+      }
+    });
+ //   console.log('body-->'+JSON.stringify(body));
+ });
+ 
+ 
+ app.action("approve-request",async ({body,ack,client,context,payload})=>{
+  await ack();
+  console.log('body-->'+JSON.stringify(body));
+  console.log('payload--->'+JSON.stringify(payload));
+  console.log('payload--->'+payload.value);
+  let jBody = {"wReqcon":[{ wReId: payload.value }]};
+  const conn = new jsforce.Connection({
+    loginUrl : 'https://login.salesforce.com'
+  });
+  await conn.login(
+    process.env.SF_USERNAME,
+    process.env.SF_PASSWORD+process.env.SF_TOKEN
+  ,(err)=>{
+    if(err)
+    {
+      console.error(err);
+    }
+    else
+    {
+      conn.apex.post("/fetchApproval/", jBody, function(err, res) {
+        if (err) { return console.error(err); }
+        else
+        {
+          console.log('res--->'+JSON.stringify(res));
+          const homeView =  appHome.createHome(res,'Approval');
+          try {
+            const result = app.client.apiCall('views.publish', {
+              token: context.botToken,
+              user_id: body.user.id,
+              view: homeView
+            });
+        
+          } catch(e) {
+            console.log(e);
+            app.error(e);
+          }
+        }
+      //  console.log("response: ", JSON.stringify(res));          
+      });
+    }
+});
+ });
+
   module.exports = { app };
+
+
+
